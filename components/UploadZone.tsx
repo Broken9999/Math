@@ -76,10 +76,10 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onFilesSelect }) => {
         </div>
         
         <h3 className="text-2xl font-bold text-slate-900 mb-2">
-          Upload your math problems
+          Upload your homework
         </h3>
         <p className="text-slate-500 mb-8 max-w-md mx-auto">
-          Drag & drop multiple images here, or click to browse. <br/>We support JPG, PNG, and WebP.
+          Drag & drop questions from Math, Science, History, or Coding here.<br/>We support JPG, PNG, and WebP.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs sm:max-w-md mx-auto">

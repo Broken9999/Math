@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calculator, Github } from 'lucide-react';
+import { Brain, Github } from 'lucide-react';
 
 export const Header: React.FC = () => {
   return (
@@ -7,10 +7,10 @@ export const Header: React.FC = () => {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="p-2 bg-indigo-600 rounded-lg">
-            <Calculator className="w-6 h-6 text-white" />
+            <Brain className="w-6 h-6 text-white" />
           </div>
           <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
-            MathSnap AI
+            StudySnap AI
           </span>
         </div>
         

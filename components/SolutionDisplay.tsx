@@ -3,10 +3,10 @@ import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { CheckCircle, Copy, Trash2, AlertCircle, Loader2 } from 'lucide-react';
-import { MathProblem } from '../types';
+import { Problem } from '../types';
 
 interface SolutionDisplayProps {
-  problem: MathProblem;
+  problem: Problem;
   onDelete: (id: string) => void;
 }
 
@@ -26,7 +26,7 @@ export const SolutionDisplay: React.FC<SolutionDisplayProps> = ({ problem, onDel
         <div className="lg:w-1/3 bg-slate-50 border-b lg:border-b-0 lg:border-r border-slate-100 p-6 flex flex-col">
            <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Problem Source
+                Original Question
               </span>
               <button 
                 onClick={() => onDelete(problem.id)}
@@ -40,7 +40,7 @@ export const SolutionDisplay: React.FC<SolutionDisplayProps> = ({ problem, onDel
            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-white border border-slate-200 shadow-sm">
              <img 
                src={problem.imageUri} 
-               alt="Math problem" 
+               alt="Homework problem" 
                className="h-full w-full object-contain p-2"
              />
            </div>
@@ -64,7 +64,7 @@ export const SolutionDisplay: React.FC<SolutionDisplayProps> = ({ problem, onDel
               {problem.status === 'completed' && (
                  <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-4 py-3 rounded-lg">
                     <CheckCircle className="w-5 h-5" />
-                    <span className="text-sm font-medium">Solution Ready</span>
+                    <span className="text-sm font-medium">Explanation Ready</span>
                  </div>
               )}
            </div>
@@ -75,8 +75,8 @@ export const SolutionDisplay: React.FC<SolutionDisplayProps> = ({ problem, onDel
           {problem.status === 'analyzing' ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
                <div className="w-16 h-16 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-               <h3 className="text-lg font-semibold text-slate-900">Solving your problem</h3>
-               <p className="text-slate-500 max-w-xs mt-2">Identifying equations and generating step-by-step explanations.</p>
+               <h3 className="text-lg font-semibold text-slate-900">Working on it...</h3>
+               <p className="text-slate-500 max-w-xs mt-2">Identifying the subject and generating a step-by-step explanation.</p>
             </div>
           ) : problem.status === 'error' ? (
              <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center opacity-50">
@@ -87,7 +87,7 @@ export const SolutionDisplay: React.FC<SolutionDisplayProps> = ({ problem, onDel
             <div className="flex flex-col h-full">
                <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
                  <div className="flex items-center gap-2 text-indigo-700">
-                   <span className="font-semibold">Step-by-Step Solution</span>
+                   <span className="font-semibold">AI Explanation</span>
                  </div>
                  <button 
                    onClick={handleCopy}

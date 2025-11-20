@@ -1,5 +1,5 @@
 {
-  "name": "MathSnap AI",
-  "description": "Snap a photo of a math problem and get step-by-step solutions powered by Gemini 2.5 Flash with advanced reasoning.",
+  "name": "StudySnap AI",
+  "description": "Snap a photo of any homework question—Math, Science, History, or Coding—and get step-by-step explanations powered by Gemini 2.5.",
   "requestFramePermissions": []
 }

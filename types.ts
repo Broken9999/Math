@@ -1,4 +1,4 @@
-export interface MathProblem {
+export interface Problem {
   id: string;
   imageUri: string;
   solution: string;

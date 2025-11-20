@@ -1,19 +1,21 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Header } from './components/Header';
 import { UploadZone } from './components/UploadZone';
 import { SolutionDisplay } from './components/SolutionDisplay';
-import { MathProblem } from './types';
-import { fileToBase64, solveMathProblem } from './services/geminiService';
-import { RotateCcw, Plus } from 'lucide-react';
+import { Problem } from './types';
+import { fileToBase64, solveProblem } from './services/geminiService';
+import { RotateCcw, Plus, UploadCloud } from 'lucide-react';
 import { Button } from './components/Button';
 
 const App: React.FC = () => {
-  const [problems, setProblems] = useState<MathProblem[]>([]);
+  const [problems, setProblems] = useState<Problem[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragCounter = useRef(0);
   
   const processFile = async (file: File, id: string) => {
     try {
       const base64 = await fileToBase64(file);
-      const solution = await solveMathProblem(base64, file.type);
+      const solution = await solveProblem(base64, file.type);
       
       setProblems(prev => prev.map(p => 
         p.id === id 
@@ -32,7 +34,7 @@ const App: React.FC = () => {
 
   const handleFilesSelect = useCallback(async (files: File[]) => {
     // Create initial problem entries
-    const newProblems: MathProblem[] = files.map(file => ({
+    const newProblems: Problem[] = files.map(file => ({
       id: Math.random().toString(36).substring(7) + Date.now(),
       imageUri: URL.createObjectURL(file),
       solution: '',
@@ -57,11 +59,57 @@ const App: React.FC = () => {
     setProblems([]);
   };
 
+  // Global Drag Handlers
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current += 1;
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current -= 1;
+    if (dragCounter.current === 0) {
+      setIsDragging(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    dragCounter.current = 0;
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const validFiles = Array.from(e.dataTransfer.files).filter((file: File) => 
+        file.type.startsWith('image/')
+      );
+      if (validFiles.length > 0) {
+        handleFilesSelect(validFiles);
+      }
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div 
+      className="min-h-screen bg-slate-50 flex flex-col font-sans relative"
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
       <Header />
       
-      <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 z-10 relative">
         
         {/* Hero Section - Only show when no problems exist */}
         {problems.length === 0 && (
@@ -73,31 +121,26 @@ const App: React.FC = () => {
             <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900 mb-4">
               Your Personal AI <br className="hidden sm:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">
-                Math Tutor
+                Study Companion
               </span>
             </h1>
             <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-              Stuck on a tough equation? Just upload a photo. 
-              Our AI breaks down complex math problems into simple, step-by-step explanations.
+              Stuck on a tough question? Just upload a photo. 
+              Math, Science, History, or Coding—we break it down for you.
             </p>
           </div>
         )}
 
-        {/* Upload Section - Always visible, but styled differently when lists exist? 
-            For simplicity, we keep the main upload zone at the top or replace it.
-            If problems exist, we can show a smaller "Add more" button or just keep the dropzone if user wants to add more.
-            Let's keep the dropzone if list is empty, otherwise show a toolbar.
-        */}
-        
+        {/* Upload Section */}
         {problems.length === 0 ? (
           <div className="max-w-xl mx-auto animate-in zoom-in-95 duration-500">
             <UploadZone onFilesSelect={handleFilesSelect} />
             
             <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
               {[
-                { title: "Snap", desc: "Take photos of your math problems" },
-                { title: "Batch", desc: "Upload multiple images at once" },
-                { title: "Solve", desc: "Get instant step-by-step solutions" }
+                { title: "Snap", desc: "Take a photo of any question" },
+                { title: "Upload", desc: "Drag and drop multiple images" },
+                { title: "Learn", desc: "Get instant step-by-step help" }
               ].map((step, i) => (
                 <div key={i} className="flex flex-col items-center">
                   <div className="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-900 font-bold flex items-center justify-center mb-3 shadow-sm">
@@ -110,7 +153,7 @@ const App: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="mb-8 flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <div className="mb-8 flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm sticky top-20 z-20">
              <h2 className="text-lg font-semibold text-slate-800">
                Results ({problems.length})
              </h2>
@@ -124,7 +167,6 @@ const App: React.FC = () => {
                     onChange={(e) => {
                       if (e.target.files && e.target.files.length > 0) {
                         handleFilesSelect(Array.from(e.target.files));
-                        // Reset input
                         e.target.value = '';
                       }
                     }}
@@ -150,6 +192,17 @@ const App: React.FC = () => {
         )}
 
       </main>
+
+      {/* Global Drag Overlay */}
+      {isDragging && (
+        <div className="fixed inset-0 z-50 bg-indigo-600/90 backdrop-blur-sm flex items-center justify-center pointer-events-none animate-in fade-in duration-200">
+          <div className="text-white text-center p-8 rounded-2xl bg-white/10 border-2 border-white/30 backdrop-blur-md shadow-2xl transform transition-all scale-105">
+            <UploadCloud className="w-24 h-24 mx-auto mb-6 text-white" />
+            <h2 className="text-4xl font-bold mb-2">Drop files to solve</h2>
+            <p className="text-indigo-100 text-lg">Math, Science, History, or Code.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
