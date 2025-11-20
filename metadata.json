@@ -1,0 +1,5 @@
+{
+  "name": "MathSnap AI",
+  "description": "Snap a photo of a math problem and get step-by-step solutions powered by Gemini 2.5 Flash with advanced reasoning.",
+  "requestFramePermissions": []
+}
