@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { UploadCloud, Image as ImageIcon, X, Camera } from 'lucide-react';
+import { UploadCloud, Image as ImageIcon, Layers } from 'lucide-react';
 import { Button } from './Button';
 
 interface UploadZoneProps {
-  onImageSelect: (file: File) => void;
+  onFilesSelect: (files: File[]) => void;
 }
 
-export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelect }) => {
+export const UploadZone: React.FC<UploadZoneProps> = ({ onFilesSelect }) => {
   const [dragActive, setDragActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -25,23 +25,21 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelect }) => {
     e.stopPropagation();
     setDragActive(false);
     
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0]);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const validFiles = Array.from(e.dataTransfer.files).filter((file: File) => 
+        file.type.startsWith('image/')
+      );
+      if (validFiles.length > 0) {
+        onFilesSelect(validFiles);
+      }
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
-    if (e.target.files && e.target.files[0]) {
-      handleFile(e.target.files[0]);
-    }
-  };
-
-  const handleFile = (file: File) => {
-    if (file.type.startsWith('image/')) {
-      onImageSelect(file);
-    } else {
-      alert("Please upload an image file.");
+    if (e.target.files && e.target.files.length > 0) {
+      const validFiles = Array.from(e.target.files);
+      onFilesSelect(validFiles);
     }
   };
 
@@ -64,7 +62,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelect }) => {
         ref={inputRef}
         type="file"
         className="hidden"
-        multiple={false}
+        multiple
         accept="image/*"
         onChange={handleChange}
       />
@@ -74,14 +72,14 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelect }) => {
           p-4 rounded-full mb-6 transition-colors duration-300
           ${dragActive ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-400'}
         `}>
-          <UploadCloud className="w-10 h-10" />
+          {dragActive ? <Layers className="w-10 h-10" /> : <UploadCloud className="w-10 h-10" />}
         </div>
         
         <h3 className="text-2xl font-bold text-slate-900 mb-2">
-          Upload your math problem
+          Upload your math problems
         </h3>
         <p className="text-slate-500 mb-8 max-w-md mx-auto">
-          Drag & drop your image here, or click to browse. We support JPG, PNG, and WebP.
+          Drag & drop multiple images here, or click to browse. <br/>We support JPG, PNG, and WebP.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs sm:max-w-md mx-auto">
@@ -90,11 +88,8 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelect }) => {
             className="w-full"
             icon={<ImageIcon className="w-4 h-4" />}
           >
-            Select Image
+            Select Images
           </Button>
-          {/* Mobile-friendly camera trigger could be added here if we used a specific camera API, 
-              but <input type="file" accept="image/*" capture="environment"> handles this natively on mobile 
-              via the Select Image button usually. */}
         </div>
       </div>
     </div>
